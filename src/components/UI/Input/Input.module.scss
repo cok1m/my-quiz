@@ -1,0 +1,42 @@
+.Input {
+  margin-bottom: 15px;
+
+  label {
+    margin-bottom: 3px;
+    padding: 0;
+    display: block;
+    font-weight: bold;
+  }
+
+  input {
+    display: block;
+    box-sizing: border-box;
+    border: 1px solid #bebebe;
+    padding: 7px;
+    margin: 0 0 5px;
+    width: 100%;
+    outline: none;
+    transition: all linear .3s;
+    -webkit-transition: all linear .3s;
+    -moz-transition: all linear .3s;
+    -ms-transition: all linear .3s;
+    -o-transition: all linear .3s;
+  }
+
+  span {
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  &.invalid {
+    color: #f01f30;
+  }
+}
+
+@media(max-width: 375px) {
+  .Input {
+    label {
+      font-size: 0.9em;
+    }
+  }
+}

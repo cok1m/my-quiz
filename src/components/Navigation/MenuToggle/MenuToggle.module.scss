@@ -1,0 +1,30 @@
+.MenuToggle {
+  position: fixed;
+  top: 40px;
+  left: 40px;
+  color: #fff;
+  font-size: 25px;
+  cursor: pointer;
+  z-index: 100;
+  transition: all 0.22s linear;
+
+  &:hover {
+    opacity: .7;
+  }
+
+  &.open {
+    left: 320px;
+  }
+}
+
+
+@media (max-width: 320px) {
+  .MenuToggle {
+    top: 20px;
+    left: 20px;
+
+    &.open {
+      left: 280px;
+    }
+  }
+}

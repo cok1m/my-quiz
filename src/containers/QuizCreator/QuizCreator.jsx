@@ -8,8 +8,18 @@ import {
 } from "../../form/formFramework";
 import Input from "../../components/UI/Input/Input";
 import Select from "../../components/UI/Select/Select";
-import axios from 'axios'
+import { connect } from "react-redux";
+import { createQuizQuestion, finishCreateQuiz, createQuizName } from "../../store/actions/createQuiz";
 
+function createQuizNameControl() {
+  return createFormControl(
+    {
+      label: "Введите название теста",
+      errorMessage: "Название не может быть пустым",
+    },
+    { required: true }
+  );
+}
 
 function createOptionControl(number) {
   return createFormControl(
@@ -38,63 +48,85 @@ function createFormControls() {
   };
 }
 
-export default class QuizCreator extends Component {
+class QuizCreator extends Component {
   state = {
-    quiz: [],
+    quizName: createQuizNameControl(),
     isFormValid: false,
     rightAnswerId: 1,
     formControls: createFormControls(),
   };
+  
+  addQuestionHandler = () => {
+    const {
+      question,
+      option1,
+      option2,
+      option3,
+      option4,
+    } = this.state.formControls;
 
+    const questionItem = {
+      question: question.value,
+      id: this.props.quiz.length + 1,
+      rightAnswerId: this.state.rightAnswerId,
+      answers: [
+        { text: option1.value, id: option1.id },
+        { text: option2.value, id: option2.id },
+        { text: option3.value, id: option3.id },
+        { text: option4.value, id: option4.id },
+      ],
+    };
+    console.log(questionItem)
+    this.props.createQuizQuestion(questionItem)
 
+    this.setState({
+      isFormValid: false,
+      rightAnswerId: 1,
+      formControls: createFormControls(),
+    });
+  };
+
+  createQuizHandler = () => {
+    this.props.createQuizName(this.state.quizName.value)
+    this.props.finishCreateQuiz()
+    this.setState({
+      quizName: createQuizNameControl(),
+      isFormValid: false,
+      rightAnswerId: 1,
+      formControls: createFormControls(),
+    });
+};
 
   submitHandler = (event) => {
     event.preventDefault();
   };
+  onBlurQuizNameHandler = () => {
+    const quizName = { ...this.state.quizName };
+    quizName.touched = true;
 
-  addQuestionHandler = () => {
-    const quiz = [ ...this.state.quiz ]
-    const index = quiz.length + 1
-
-    const { question, option1, option2, option3, option4 } = this.state.formControls
-
-    const questionItem = {
-      question: question.value,
-      id: index,
-      rightAnswerId: this.state.rightAnswerId,
-      answers: [
-        {text: option1.value, id: option1.id},
-        {text: option2.value, id: option2.id},
-        {text: option3.value, id: option3.id},
-        {text: option4.value, id: option4.id}
-      ]
-    }
-
-    quiz.push(questionItem)
-
-    this.setState({
-      quiz,
-      isFormValid: false,
-      rightAnswerId: 1,
-      formControls: createFormControls()
-    })
+    this.setState({ quizName });
   };
 
-  createQuizHandler = async () => {
-    console.log(this.state.quiz)
-    try {
-      await axios.post('https://react-my-quiz.firebaseio.com/quizes.json', this.state.quiz)
-      
-      this.setState({
-        quiz: [],
-        isFormValid: false,
-        rightAnswerId: 1,
-        formControls: createFormControls()
-      })
-    } catch(e) {
-      console.log(e)
-    }
+  onBlurHandler = (controlName) => {
+    const formControls = { ...this.state.formControls };
+    const control = { ...formControls[controlName] };
+    control.touched = true;
 
+    formControls[controlName] = control;
+
+    this.setState({
+      formControls,
+      isFormValid: validateForm(formControls),
+    });
+  };
+
+  changeQuizNameHandler = (value) => {
+    const quizName = { ...this.state.quizName };
+    quizName.touched = true;
+    quizName.value = value;
+    quizName.valid = validateControl(quizName.value, quizName.validation);
+
+    this.setState({ quizName });
   };
 
   changeControlHandler = (value, controlName) => {
@@ -118,6 +150,22 @@ export default class QuizCreator extends Component {
     });
   };
 
+  renderQuizNameControl = () => {
+    const control = this.state.quizName;
+    return (
+      <Input
+        label={control.label}
+        value={control.value}
+        valid={control.valid}
+        shouldValidate={!!control.validation}
+        touched={control.touched}
+        errorMessage={control.errorMessage}
+        onChange={(event) => this.changeQuizNameHandler(event.target.value)}
+        onBlur={() => this.onBlurQuizNameHandler()}
+      />
+    );
+  };
+
   renderControls = () => {
     return Object.keys(this.state.formControls).map((controlName, index) => {
       const control = this.state.formControls[controlName];
@@ -134,8 +182,9 @@ export default class QuizCreator extends Component {
             onChange={(event) =>
               this.changeControlHandler(event.target.value, controlName)
             }
+            onBlur={() => this.onBlurHandler(controlName)}
           />
-          {index === 0 ? <hr /> : null}
+          {index === 0 || index === 4 ? <hr /> : null}
         </React.Fragment>
       );
     });
@@ -162,20 +211,21 @@ export default class QuizCreator extends Component {
           <h1>Создание теста</h1>
 
           <form onSubmit={this.submitHandler}>
+            {this.renderQuizNameControl()}
             {this.renderControls()}
 
             {select}
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               onClick={this.addQuestionHandler}
               disabled={!this.state.isFormValid}
             >
               Добавить вопрос
             </Button>
-            <Button 
-              type="success" 
+            <Button
+              type="success"
               onClick={this.createQuizHandler}
-              disabled={this.state.quiz.length === 0}
+              disabled={this.props.quiz.length === 0}
             >
               Создать тест
             </Button>
@@ -185,3 +235,15 @@ export default class QuizCreator extends Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  quiz: state.createQuiz.quiz
+})
+
+const mapDispatchToProps = dispatch => ({
+  createQuizQuestion: item => dispatch(createQuizQuestion(item)),
+  finishCreateQuiz: () => dispatch(finishCreateQuiz()),
+  createQuizName: (quizName) => dispatch(createQuizName(quizName)) 
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(QuizCreator)

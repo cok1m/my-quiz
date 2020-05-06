@@ -3,6 +3,7 @@ import styles from "./Auth.module.scss";
 import Button from "../../components/UI/Button/Button";
 import Input from "../../components/UI/Input/Input";
 import { validateControl, createFormControl, validateForm } from "../../form/formFramework";
+import axios from 'axios'
 
 export default class Auth extends Component {
   constructor(props) {
@@ -37,9 +38,34 @@ export default class Auth extends Component {
     };
   }
 
-  loginHandler = () => {};
+  loginHandler = async () => {
+    try {
+      const authData = {
+        email: this.state.formControls.email.value,
+        password: this.state.formControls.password.value,
+        returnSecureToken: true
+      }
+      const response = await axios.post('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDoHK8CptIwDtauqOudPPDI83CJGw4adqE', authData)
+      console.log(response)
+    } catch(e) {
+      console.log(e)
+    }
+  };
 
-  registerHandler = () => {};
+  registerHandler = async () => {
+    try {
+      const authData = {
+        email: this.state.formControls.email.value,
+        password: this.state.formControls.password.value,
+        returnSecureToken: true
+      }
+      const response = await axios.post('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDoHK8CptIwDtauqOudPPDI83CJGw4adqE', authData)
+      console.log(response)
+    } catch(e) {
+      console.log(e)
+    }
+
+  };
 
   submitHandler = (event) => {
     event.preventDefault();

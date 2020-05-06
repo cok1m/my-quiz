@@ -1,7 +1,7 @@
 import {
   CREATE_QUIZ_QUESTION,
   CREATE_QUIZ_NAME,
-  RESET_QUIZ_CREATION
+  RESET_QUIZ_CREATION,
 } from '../actions/actionTypes'
 
 const initialState = {

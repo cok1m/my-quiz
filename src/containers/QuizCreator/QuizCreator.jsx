@@ -76,7 +76,6 @@ class QuizCreator extends Component {
         { text: option4.value, id: option4.id },
       ],
     };
-    console.log(questionItem)
     this.props.createQuizQuestion(questionItem)
 
     this.setState({
@@ -215,6 +214,7 @@ class QuizCreator extends Component {
             {this.renderControls()}
 
             {select}
+            
             <Button
               type="primary"
               onClick={this.addQuestionHandler}

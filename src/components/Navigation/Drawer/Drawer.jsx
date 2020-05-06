@@ -6,12 +6,20 @@ import { NavLink } from "react-router-dom";
 const Drawer = (props) => {
   const links = [
     {to: '/', label: 'Список', exact: true},
-    {to: '/auth', label: 'Авторизация', exact: false},
-    {to: '/quiz-creator', label: 'Создать тест', exact: false}
+
   ]
+
+  if (props.isAuthenticated) {
+    links.push({to: '/quiz-creator', label: 'Создать тест', exact: false})
+    links.push({to: '/logout', label: 'Выйти', exact: false})
+  } else {
+    links.push({to: '/auth', label: 'Авторизация', exact: false})
+  }
+
+
   const classes = [styles.Drawer, !props.isOpen ? styles.close : null];
 
-  const renderLinks = () => links.map((link, index) => {
+  const renderLinks = (links) => links.map((link, index) => {
         return (
           <li key={index} >
             <NavLink 
@@ -30,7 +38,7 @@ const Drawer = (props) => {
     <>
       <nav className={classes.join(" ")}>
         <ul>
-          {renderLinks()}
+          { renderLinks(links) }
         </ul>
       </nav>
       {props.isOpen ? <Backdrop onClick={props.onClose} /> : null}

@@ -20,7 +20,6 @@ const resetQuizCreation = () => ({
 })
 
 export const finishCreateQuiz = () => async (dispatch, getState) => {
-  console.log(getState().createQuiz.quiz)
   await axiosQuiz.post("quizes.json", getState().createQuiz.quiz)
-  dispatch(resetQuizCreation)
+  dispatch(resetQuizCreation())
 }
